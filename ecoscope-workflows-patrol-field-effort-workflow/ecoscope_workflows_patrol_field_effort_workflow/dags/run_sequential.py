@@ -605,7 +605,7 @@ def main(params: Params):
             df=add_custom_visit_bins,
             col="visit_bin",
             new_col="hex_color",
-            cmap={"type_": "palette", "name": "RdYlGn_r"},
+            cmap={"type_": "palette", "name": "RdYlGn"},
             unvisited="#808080",
             **(params_dict.get("add_visit_bin_colors") or {}),
         )

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, confloat, constr
 
@@ -15,7 +15,7 @@ class WorkflowDetails(BaseModel):
         extra="forbid",
     )
     name: str = Field(..., title="Workflow Name")
-    description: Optional[str] = Field("", title="Workflow Description")
+    description: str | None = Field("", title="Workflow Description")
 
 
 class Url(str, Enum):
@@ -28,7 +28,7 @@ class BaseMaps(BaseModel):
     url: Literal["https://tile.openstreetmap.org/{z}/{x}/{y}.png"] = Field(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png", title="Preset Layer URL"
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -46,7 +46,7 @@ class BaseMaps1(BaseModel):
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         title="Preset Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -64,7 +64,7 @@ class BaseMaps2(BaseModel):
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         title="Preset Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -82,7 +82,7 @@ class BaseMaps3(BaseModel):
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
         title="Preset Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -100,7 +100,7 @@ class BaseMaps4(BaseModel):
         "https://tiles.arcgis.com/tiles/POUcpLYXNckpLjnY/arcgis/rest/services/landDx_basemap_tiles_mapservice/MapServer/tile/{z}/{y}/{x}",
         title="Preset Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -118,7 +118,7 @@ class BaseMaps5(BaseModel):
         "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
         title="Preset Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Layer Opacity",
@@ -126,26 +126,22 @@ class BaseMaps5(BaseModel):
 
 
 class BaseMaps6(BaseModel):
-    url: Optional[
-        constr(
-            pattern=r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_\+.~#?&//=\{\}]*)"
-        )
-    ] = Field(
+    url: constr(pattern=r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_\+.~#?&//=\{\}]*)") | None = Field(
         "https://example.tiles.com/{z}/{x}/{y}.png",
         description="The URL of a publicly accessible tiled raster service.",
         title="Custom Layer URL",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1,
         description="Set layer transparency from 1 (fully visible) to 0 (hidden).",
         title="Custom Layer Opacity",
     )
-    max_zoom: Optional[int] = Field(
+    max_zoom: int | None = Field(
         20,
         description="Set the maximum zoom level to fetch tiles for.",
         title="Custom Layer Max Zoom",
     )
-    min_zoom: Optional[int] = Field(
+    min_zoom: int | None = Field(
         0,
         description="Set the minimum zoom level to fetch tiles for.",
         title="Custom Layer Min Zoom",
@@ -156,19 +152,7 @@ class BaseMapDefs(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    base_maps: Optional[
-        List[
-            Union[
-                BaseMaps,
-                BaseMaps1,
-                BaseMaps2,
-                BaseMaps3,
-                BaseMaps4,
-                BaseMaps5,
-                BaseMaps6,
-            ]
-        ]
-    ] = Field(
+    base_maps: list[BaseMaps | BaseMaps1 | BaseMaps2 | BaseMaps3 | BaseMaps4 | BaseMaps5 | BaseMaps6] | None = Field(
         [
             {
                 "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
@@ -190,7 +174,7 @@ class GetPatrolObs(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    patrol_types: List[str] = Field(
+    patrol_types: list[str] = Field(
         ...,
         description="Specify the patrol type(s) to analyze (optional). Leave empty to analyze all patrol types.",
         title="Patrol Types",
@@ -217,26 +201,26 @@ class FeatureSetQuery(BaseModel):
 
 
 class LineStyle(BaseModel):
-    color: Optional[List[str]] = Field(
+    color: list[str] | None = Field(
         [],
         description="Line hex colour(s) e.g. ['#E63946']. Cycles across rows.",
         title="Color",
     )
-    opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1.0, description="Line opacity 0–1.", title="Opacity"
     )
-    width: Optional[float] = Field(
+    width: float | None = Field(
         2.0, description="Line width in pixels.", title="Width"
     )
 
 
 class PointStyle(BaseModel):
-    color: Optional[List[str]] = Field(
+    color: list[str] | None = Field(
         [],
         description="Fill hex colour(s). For SVG icons this tints the marker. Cycles across rows.",
         title="Color",
     )
-    size: Optional[float] = Field(
+    size: float | None = Field(
         None,
         description="Point radius / icon size in pixels. Leave empty to use the size set in EarthRanger.",
         title="Size",
@@ -244,39 +228,39 @@ class PointStyle(BaseModel):
 
 
 class PolygonStyle(BaseModel):
-    fill_color: Optional[List[str]] = Field(
+    fill_color: list[str] | None = Field(
         [],
         description="Fill hex colour(s) e.g. ['#FFA500']. Cycles across rows.",
         title="Fill Color",
     )
-    stroke_color: Optional[str] = Field(
+    stroke_color: str | None = Field(
         None, description="Border hex colour.", title="Stroke Color"
     )
-    fill_opacity: Optional[confloat(ge=0.0, le=1.0)] = Field(
+    fill_opacity: confloat(ge=0.0, le=1.0) | None = Field(
         1.0, description="Fill opacity 0–1.", title="Fill Opacity"
     )
-    stroke_width: Optional[float] = Field(
+    stroke_width: float | None = Field(
         2.0, description="Border width in pixels.", title="Stroke Width"
     )
 
 
 class TrajectorySegmentFilter(BaseModel):
-    min_length_meters: Optional[confloat(ge=0.001)] = Field(
+    min_length_meters: confloat(ge=0.001) | None = Field(
         0.001, title="Minimum Segment Length (Meters)"
     )
-    max_length_meters: Optional[confloat(gt=0.001)] = Field(
+    max_length_meters: confloat(gt=0.001) | None = Field(
         100000, title="Maximum Segment Length (Meters)"
     )
-    min_time_secs: Optional[confloat(ge=1.0)] = Field(
+    min_time_secs: confloat(ge=1.0) | None = Field(
         1, title="Minimum Segment Duration (Seconds)"
     )
-    max_time_secs: Optional[confloat(gt=1.0)] = Field(
+    max_time_secs: confloat(gt=1.0) | None = Field(
         172800, title="Maximum Segment Duration (Seconds)"
     )
-    min_speed_kmhr: Optional[confloat(gt=0.001)] = Field(
+    min_speed_kmhr: confloat(gt=0.001) | None = Field(
         0.01, title="Minimum Segment Speed (Kilometers per Hour)"
     )
-    max_speed_kmhr: Optional[confloat(gt=0.001)] = Field(
+    max_speed_kmhr: confloat(gt=0.001) | None = Field(
         500, title="Maximum Segment Speed (Kilometers per Hour)"
     )
 
@@ -299,7 +283,7 @@ class CustomGridCellSize(BaseModel):
     auto_scale_or_custom: Literal["Customize"] = Field(
         "Customize", title="Grid Cell Size"
     )
-    grid_cell_size: Optional[confloat(lt=10000.0, gt=0.0)] = Field(
+    grid_cell_size: confloat(lt=10000.0, gt=0.0) | None = Field(
         5000,
         description="Define the resolution of the raster grid (in the unit of measurement defined by the coordinate reference system set below). A smaller grid cell size provides more detail, while a larger size generalizes the data.",
         title="Custom Grid Cell Size",
@@ -321,14 +305,14 @@ class TimeRange(BaseModel):
     )
     since: datetime = Field(..., description="The start time", title="Since")
     until: datetime = Field(..., description="The end time", title="Until")
-    timezone: Optional[TimezoneInfo] = Field(None, title="Timezone")
+    timezone: TimezoneInfo | None = Field(None, title="Timezone")
 
 
 class PatrolObsTrajs(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    trajectory_segment_filter: Optional[TrajectorySegmentFilter] = Field(
+    trajectory_segment_filter: TrajectorySegmentFilter | None = Field(
         default_factory=lambda: TrajectorySegmentFilter.model_validate(
             {
                 "min_length_meters": 0.001,
@@ -348,7 +332,7 @@ class CreateGeoMeshgrid(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    auto_scale_or_custom_cell_size: Optional[CustomGridCellSize] = Field(
+    auto_scale_or_custom_cell_size: CustomGridCellSize | None = Field(
         default_factory=lambda: CustomGridCellSize.model_validate(
             {"auto_scale_or_custom": "Customize", "grid_cell_size": 1000}
         ),
@@ -357,19 +341,19 @@ class CreateGeoMeshgrid(BaseModel):
 
 
 class LayerStyle(BaseModel):
-    polygon: Optional[List[PolygonStyle]] = Field(
+    polygon: list[PolygonStyle] | None = Field(
         [],
         description="Polygon styling. Add one entry to override ER native colours.",
         max_length=1,
         title="Polygon",
     )
-    line: Optional[List[LineStyle]] = Field(
+    line: list[LineStyle] | None = Field(
         [],
         description="Line styling. Add one entry to override ER native colours.",
         max_length=1,
         title="Line",
     )
-    point: Optional[List[PointStyle]] = Field(
+    point: list[PointStyle] | None = Field(
         [],
         description="Point and icon marker styling. Add one entry to override ER native colours.",
         max_length=1,
@@ -383,7 +367,7 @@ class FeatureIdQuery(BaseModel):
         description="UUID of a specific spatial feature available on EarthRanger.",
         title="Feature Id",
     )
-    style: Optional[List[LayerStyle]] = Field(
+    style: list[LayerStyle] | None = Field(
         [],
         description="Optional: Override how EarthRanger spatial features are rendered on the map. If not specified, features will use their native EarthRanger colours and styling.",
         max_length=1,
@@ -397,7 +381,7 @@ class FeatureTypeQuery(BaseModel):
         description="Feature type name as shown in EarthRanger e.g. 'Conservancy'.",
         title="Feature Type",
     )
-    style: Optional[List[LayerStyle]] = Field(
+    style: list[LayerStyle] | None = Field(
         [],
         description="Optional: Override how EarthRanger spatial features are rendered on the map. If not specified, features will use their native EarthRanger colours and styling.",
         max_length=1,
@@ -406,7 +390,7 @@ class FeatureTypeQuery(BaseModel):
 
 
 class EarthRangerSource(BaseModel):
-    query: Optional[Union[FeatureSetQuery, FeatureTypeQuery, FeatureIdQuery]] = Field(
+    query: FeatureSetQuery | FeatureTypeQuery | FeatureIdQuery | None = Field(
         None, title="Query"
     )
 
@@ -415,8 +399,8 @@ class SelectGeoEr(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    source: Optional[EarthRangerSource] = Field(None, title="Source")
-    group_by: Optional[str] = Field(
+    source: EarthRangerSource | None = Field(None, title="Source")
+    group_by: str | None = Field(
         "type_name",
         description="Column used to group features in the map legend e.g. 'Feature Type' shows one legend entry per feature type.",
         title="Group By",
@@ -427,23 +411,23 @@ class FormData(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    workflow_details: Optional[WorkflowDetails] = Field(
+    workflow_details: WorkflowDetails | None = Field(
         None,
         description="Add information that will help to differentiate this workflow from another.",
         title="Set Workflow Details",
     )
-    er_client_name: Optional[ErClientName] = Field(None, title="Data Source")
-    time_range: Optional[TimeRange] = Field(
+    er_client_name: ErClientName | None = Field(None, title="Data Source")
+    time_range: TimeRange | None = Field(
         None, description="Choose the period of time to analyze.", title="Time Range"
     )
-    base_map_defs: Optional[BaseMapDefs] = Field(None, title="Base Maps")
-    select_geo_er: Optional[SelectGeoEr] = Field(None, title="Area of Interest")
-    get_patrol_obs: Optional[GetPatrolObs] = Field(
+    base_map_defs: BaseMapDefs | None = Field(None, title="Base Maps")
+    select_geo_er: SelectGeoEr | None = Field(None, title="Area of Interest")
+    get_patrol_obs: GetPatrolObs | None = Field(
         None, title="Fetch Patrol Observations"
     )
-    patrol_obs_trajs: Optional[PatrolObsTrajs] = Field(
+    patrol_obs_trajs: PatrolObsTrajs | None = Field(
         None, title="Build Patrol Trajectories"
     )
-    create_geo_meshgrid: Optional[CreateGeoMeshgrid] = Field(
+    create_geo_meshgrid: CreateGeoMeshgrid | None = Field(
         None, title="Create Analysis Grid"
     )

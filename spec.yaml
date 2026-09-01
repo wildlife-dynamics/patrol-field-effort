@@ -85,10 +85,6 @@ workflow:
       sub_page_size: 100 
       patrols_overlap_daterange: true 
 
-  # - name: Choose colormap to label the maps 
-  #   id: choose_colormap 
-  #   task: choose_cmap
-
   - name: Build Patrol Trajectories 
     id: patrol_obs_trajs 
     task: relocations_to_trajectory 
@@ -142,7 +138,7 @@ workflow:
     id: meshgrid_idx_id
     task: add_index_column
     partial:
-      gdf: ${{ workflow.overlay_meshgrid_spatial.return }} #${{ workflow.create_geo_meshgrid.return }}
+      gdf: ${{ workflow.overlay_meshgrid_spatial.return }}
       column: "cell_id"
 
   - name: Prepare Patrol Trajectories for Analysis
@@ -238,9 +234,9 @@ workflow:
       df: ${{ workflow.add_custom_visit_bins.return }}
       col: visit_bin
       new_col: hex_color
-      cmap: #${{ workflow.choose_colormap.return }}
+      cmap:
         type_: "palette"
-        name: "RdYlGn_r"
+        name: "RdYlGn"
       unvisited: "#808080"
 
   - name: Prepare Visit Layer for Mapping
@@ -323,7 +319,7 @@ workflow:
       df: ${{ workflow.add_custom_dwell_bins.return }}
       col: visit_bin
       new_col: hex_color
-      cmap: #${{ workflow.choose_colormap.return }}
+      cmap:
         type_: "palette"
         name: "RdYlGn"
       unvisited: "#808080"
@@ -477,16 +473,12 @@ workflow:
 
   - name: Calculate Map Zoom and Position 
     id: overall_zoom_value 
-    task: view_state_from_geodataframes #view_state_deck_gdf
+    task: view_state_from_geodataframes
     partial: 
       geodataframes: 
         - ${{ workflow.select_geo_er.return }}
       max_zoom: 15
-
-      # pitch: 0 
-      # bearing: 0 
-      # gdf: ${{ workflow.select_geo_er.return }}
-
+      
   - name: Prepare Colors for Days Since Visit Map 
     id: add_time_visit_rgba 
     task: hex_column_to_rgba 

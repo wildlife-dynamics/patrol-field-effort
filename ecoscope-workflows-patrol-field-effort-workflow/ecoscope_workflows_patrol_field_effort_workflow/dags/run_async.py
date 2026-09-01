@@ -731,7 +731,7 @@ def main(params: Params):
                 "new_col": "hex_color",
                 "cmap": {
                     "type_": "palette",
-                    "name": "RdYlGn_r",
+                    "name": "RdYlGn",
                 },
                 "unvisited": "#808080",
             }
