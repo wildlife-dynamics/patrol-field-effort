@@ -18,7 +18,7 @@
       ],
       "type": "object",
       "description": "Add information that will help to differentiate this workflow from another.",
-      "title": "Set Workflow Details"
+      "title": "Workflow Details"
     },
     "er_client_name": {
       "additionalProperties": false,
@@ -33,7 +33,7 @@
         "data_source"
       ],
       "type": "object",
-      "title": "Data Source"
+      "title": "Connect to EarthRanger"
     },
     "time_range": {
       "additionalProperties": false,
@@ -58,6 +58,13 @@
           ],
           "default": null,
           "title": "Timezone"
+        },
+        "time_format": {
+          "default": "%d %b %Y %H:%M:%S",
+          "title": "Time Format",
+          "type": "string",
+          "description": "The time format",
+          "ecoscope:advanced": true
         }
       },
       "required": [
@@ -275,7 +282,7 @@
       },
       "type": "object",
       "required": [],
-      "title": "Base Maps"
+      "title": "Configure Base Map Layers"
     },
     "select_geo_er": {
       "additionalProperties": false,
@@ -293,7 +300,7 @@
           "default": "type_name",
           "title": "Group By",
           "type": "string",
-          "description": "Column used to group features in the map legend e.g. 'Feature Type' shows one legend entry per feature type.",
+          "description": "Column used to group features in the map legend e.g. 'Feature Type'.",
           "oneOf": [
             {
               "const": "type_name",
@@ -377,6 +384,21 @@
       "required": [],
       "type": "object",
       "title": "Create Analysis Grid"
+    },
+    "zoom_to_envelope": {
+      "additionalProperties": false,
+      "properties": {
+        "expansion_factor": {
+          "default": 1.5,
+          "title": "Expansion Factor",
+          "type": "number",
+          "description": "Factor to expand the bounding box (e.g., 1.2 = 20% larger)",
+          "ecoscope:advanced": true
+        }
+      },
+      "required": [],
+      "type": "object",
+      "title": ""
     }
   },
   "$defs": {
@@ -433,6 +455,9 @@
             },
             {
               "$ref": "#/$defs/FeatureIdQuery"
+            },
+            {
+              "type": "null"
             }
           ],
           "default": null,
@@ -452,7 +477,7 @@
         },
         "style": {
           "default": [],
-          "description": "Optional: Override how EarthRanger spatial features are rendered on the map. If not specified, features will use their native EarthRanger colours and styling.",
+          "description": "Optional: Override how EarthRanger spatial features are rendered on the map.",
           "items": {
             "$ref": "#/$defs/LayerStyle"
           },
@@ -494,7 +519,7 @@
         },
         "style": {
           "default": [],
-          "description": "Optional: Override how EarthRanger spatial features are rendered on the map. If not specified, features will use their native EarthRanger colours and styling.",
+          "description": "Optional: Override how EarthRanger spatial features are rendered on the map.",
           "items": {
             "$ref": "#/$defs/LayerStyle"
           },
@@ -732,7 +757,8 @@
       "ui:order": [
         "since",
         "until",
-        "timezone"
+        "timezone",
+        "time_format"
       ]
     },
     "select_geo_er": {
@@ -749,7 +775,8 @@
       "select_geo_er",
       "get_patrol_obs",
       "patrol_obs_trajs",
-      "create_geo_meshgrid"
+      "create_geo_meshgrid",
+      "zoom_to_envelope"
     ]
   },
   "additionalProperties": false

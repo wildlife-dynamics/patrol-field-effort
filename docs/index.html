@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrol Field Effort Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">Patrol Field Effort</a>
+      <nav>
+        <a href="index.html" class="active">Overview</a>
+        <a href="user-guide.html">User Guide</a>
+        <a href="technical-guide.html">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/patrol-field-effort">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Patrol Field Effort Workflow</h1>
+    <p class="lede">Analyzes ranger patrol activity within a study area and produces a dashboard summarizing field effort across three spatial metrics, sourced live from EarthRanger.</p>
+
+    <div class="card-grid">
+      <a class="card" href="user-guide.html">
+        <h3>User Guide</h3>
+        <p>Step-by-step instructions for loading, configuring, and running the workflow.</p>
+      </a>
+      <a class="card" href="technical-guide.html">
+        <h3>Technical Guide</h3>
+        <p>Deeper look at the workflow's internals — grid construction, field-effort metric methodology, and dashboard assembly.</p>
+      </a>
+      <a class="card" href="troubleshooting.html">
+        <h3>Troubleshooting</h3>
+        <p>Common errors you may hit while configuring or running the workflow, and how to resolve them.</p>
+      </a>
+    </div>
+
+    <h2>What it produces</h2>
+    <ul>
+      <li>A <strong>Days Since Last Patrol Visit</strong> map (5-class grid)</li>
+      <li>A <strong>Dwell Time (Hours)</strong> map (5-class grid)</li>
+      <li>A <strong>Linear Time Density</strong> map (5-class grid, patrol route coverage)</li>
+      <li>Three <strong>stat cards</strong> — total patrols, total distance (km), patrol coverage (%)</li>
+      <li>An <strong>operational days table</strong> — distance, duration, and patrol days per ranger</li>
+      <li>An <strong>interactive widget dashboard</strong> combining all of the above</li>
+    </ul>
+
+    <h2>Requirements</h2>
+    <ul>
+      <li>Access to an <strong>EarthRanger</strong> instance with completed (<code>done</code>) patrols recorded in the analysis period</li>
+      <li>An area-of-interest feature layer available via EarthRanger's spatial features</li>
+    </ul>
+    <p>Groupers are fixed to an empty list for this workflow &mdash; every output covers the whole dataset as a single combined view; there is no per-group breakdown.</p>
+
+    <h2>Get started</h2>
+    <p>New to the workflow? Start with the <a href="user-guide.html">User Guide</a> for a walkthrough of loading the template and configuring the time range, area of interest, grid cell size, and base maps. Running into an error? Check <a href="troubleshooting.html">Troubleshooting</a> first.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>Patrol Field Effort Workflow &middot; <a href="https://github.com/wildlife-dynamics/patrol-field-effort">wildlife-dynamics/patrol-field-effort</a> on GitHub</p>
+  </footer>
+</body>
+</html>

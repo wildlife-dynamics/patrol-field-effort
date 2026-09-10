@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Guide — Patrol Field Effort Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">Patrol Field Effort</a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="user-guide.html" class="active">User Guide</a>
+        <a href="technical-guide.html">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/patrol-field-effort">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>User Guide</h1>
+    <p class="lede">This guide walks you through configuring and running the Patrol Field Effort workflow, which analyzes ranger patrol activity within a study area and produces a dashboard summarizing field effort across three spatial metrics, sourced from EarthRanger.</p>
+
+    <h2>Overview</h2>
+    <p>The workflow delivers, for a single combined analysis (there is no per-group breakdown):</p>
+    <ul>
+      <li><strong>Days since last patrol visit</strong> map &mdash; a 5-class grid showing how recently rangers passed through each cell</li>
+      <li><strong>Dwell time (hours)</strong> map &mdash; a 5-class grid showing total time rangers spent inside each cell</li>
+      <li><strong>Linear time density</strong> map &mdash; a 5-class grid showing patrol route coverage as a percentile across the grid</li>
+      <li>Three <strong>stat cards</strong> &mdash; total patrols, total distance (km), and spatial patrol coverage (%)</li>
+      <li>An <strong>operational days table</strong> &mdash; distance, duration, and distinct patrol days per ranger</li>
+      <li>An <strong>interactive widget dashboard</strong> combining all of the above</li>
+    </ul>
+
+    <h2>Prerequisites</h2>
+    <ul>
+      <li>Access to an <strong>EarthRanger</strong> instance with <strong>completed</strong> (<code>done</code>) patrols recorded within the analysis period</li>
+      <li>An area-of-interest feature layer available via EarthRanger's spatial features (used as the study area boundary and grid clip extent)</li>
+    </ul>
+
+    <h2>1. Add the Workflow Template</h2>
+    <p>In the workflow runner, go to <strong>Workflow Templates</strong> and click <strong>Add Workflow Template</strong>. Paste this repository's URL into the <strong>Github Link</strong> field, then click <strong>Add Template</strong>:</p>
+    <pre><code>https://github.com/wildlife-dynamics/patrol-field-effort.git</code></pre>
+    <p>Once added, it appears in the <strong>Workflow Templates</strong> list. Click it to open the workflow configuration form.</p>
+    <p><em>The card may show "Initializing…" briefly while the environment is set up.</em></p>
+
+    <h2>2. Configure the EarthRanger Connection</h2>
+    <p>Navigate to <strong>Data Sources</strong>, click <strong>Connect</strong>, and select <strong>EarthRanger</strong>. Fill in the connection details (URL, username, password) and save. This connection is used both to fetch patrol observations and to select the area-of-interest feature layer.</p>
+
+    <h2 id="config-form">3. Configure the Workflow Form</h2>
+    <p>The configuration form has several sections on a single page.</p>
+
+    <h3>Workflow Details</h3>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td>Workflow Name</td><td>A short name to identify this run</td></tr>
+      <tr><td>Workflow Description</td><td>Optional notes (e.g. site or reporting period)</td></tr>
+    </table>
+
+    <h3>Connect to EarthRanger</h3>
+    <p>Select the data source configured in Step 2.</p>
+
+    <h3>Time Range</h3>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td>Timezone</td><td>Local timezone (e.g. <code>Africa/Nairobi UTC+03:00</code>)</td></tr>
+      <tr><td>Since</td><td>Start of the analysis period</td></tr>
+      <tr><td>Until</td><td>End of the analysis period &mdash; also the reference date for "days since last visit"</td></tr>
+    </table>
+
+    <h3 id="groupers">Groupers</h3>
+    <p>This workflow fixes groupers to an empty list (<code>partial: groupers: []</code>) &mdash; every metric and the summary table are computed for the whole dataset as a single view. There is no per-group breakdown option in this workflow.</p>
+
+    <h3>Area of Interest</h3>
+    <p>Select the EarthRanger spatial feature(s) that define the study area boundary. This same geometry is used to clip the analysis grid and as the map extent.</p>
+
+    <h3 id="grid-cell-size">Grid Cell Size <span class="badge">Advanced</span></h3>
+    <p>The grid is always built at a <strong>custom cell size</strong> &mdash; the underlying auto-scale/custom toggle is hidden and locked to "Customize" for this workflow. Only the <strong>Grid Cell Size</strong> field (metres) is exposed, defaulting to <strong>1000 m</strong>.</p>
+
+    <h3>Base Map Layers</h3>
+    <p>Configure the background tile layer(s) used by all three maps (URL, opacity, max zoom).</p>
+
+    <h2>4. Run</h2>
+    <p>Once all sections are filled in, click <strong>Submit</strong>. The runner will:</p>
+    <ol>
+      <li>Fetch completed (<code>status: done</code>) patrol observations from EarthRanger for the configured time range (<code>raise_on_empty: true</code> &mdash; the run fails rather than producing an empty dashboard if no patrols match).</li>
+      <li>Convert the observations into patrol trajectories.</li>
+      <li>Validate that the selected area-of-interest geometry is polygonal, reproject it to a metric CRS (EPSG:3857), and save it as the study area boundary.</li>
+      <li>Build an analysis grid over the study area (default 1000 m cells) and clip it to the AOI boundary.</li>
+      <li>Reproject the patrol trajectories to EPSG:3857 and spatially join them against the grid.</li>
+      <li>Compute <strong>days since last visit</strong> per cell, flag visited cells, and classify into 5 natural-breaks bins (Red&ndash;Yellow&ndash;Green palette; unvisited cells are grey).</li>
+      <li>Compute <strong>dwell time</strong> per cell (total hours rangers spent inside each cell), using the same flagging and 5-bin classification scheme.</li>
+      <li>Compute <strong>linear time density</strong> per cell (route coverage as a percentile), adding back cells with zero coverage so every grid cell is represented, then classify with the same scheme.</li>
+      <li>Build an <strong>operational days table</strong> grouped by ranger &mdash; total distance (km), duration (hrs), and distinct patrol days.</li>
+      <li>Compute the three summary stats: total distinct patrols, total patrol distance (km), and patrol coverage (%).</li>
+      <li>Assemble the dashboard: 3 stat cards, 3 interactive maps, and 1 sortable/filterable table.</li>
+      <li>Save all outputs to the directory specified by <code>ECOSCOPE_WORKFLOWS_RESULTS</code>.</li>
+    </ol>
+
+    <h2>Output Files</h2>
+    <p>All outputs are written to <code>$ECOSCOPE_WORKFLOWS_RESULTS/</code>.</p>
+
+    <h3>Field Effort Maps</h3>
+    <table>
+      <tr><th>File</th><th>Description</th></tr>
+      <tr><td><code>days_since_patrol_visit.gpkg</code></td><td>Grid with days-since-visit stats</td></tr>
+      <tr><td><code>days_since_patrol_visit_map.html</code></td><td>Interactive days-since-visit map</td></tr>
+      <tr><td><code>time_spent_per_cell.gpkg</code></td><td>Grid with dwell time (hours) per cell</td></tr>
+      <tr><td><code>time_spent_per_grid_map.html</code></td><td>Interactive dwell time map</td></tr>
+      <tr><td><code>patrols_linear_time_density.gpkg</code></td><td>Grid with linear time density percentiles</td></tr>
+      <tr><td><code>ltd_patrols_map.html</code></td><td>Interactive linear time density map</td></tr>
+    </table>
+
+    <h3>Boundary &amp; Raw Data</h3>
+    <table>
+      <tr><th>File</th><th>Description</th></tr>
+      <tr><td><code>er_spatial_file.gpkg</code></td><td>Study area boundary</td></tr>
+      <tr><td><code>patrol_observations.gpkg</code></td><td>Raw patrol observation points</td></tr>
+      <tr><td><code>patrol_trajectories.gpkg</code></td><td>Patrol trajectory lines</td></tr>
+    </table>
+
+    <h3>Summary Table</h3>
+    <table>
+      <tr><th>File</th><th>Description</th></tr>
+      <tr><td><code>patrol_operational_days.csv</code></td><td>Operational days, distance, and duration per ranger</td></tr>
+    </table>
+  </main>
+
+  <footer class="site-footer">
+    <p>Patrol Field Effort Workflow &middot; <a href="https://github.com/wildlife-dynamics/patrol-field-effort">wildlife-dynamics/patrol-field-effort</a> on GitHub</p>
+  </footer>
+</body>
+</html>

@@ -6,71 +6,82 @@ Lines specific to the testing context are marked with a test tube emoji (🧪) t
 that they would not be included (or would be different) in the production version of this file.
 """
 
-import json
 import os
 import warnings  # 🧪
+from typing import Any
 
-from ecoscope_workflows_core.tasks.config import (
-    set_workflow_details as set_workflow_details,
-)
-from ecoscope_workflows_core.tasks.filter import set_time_range as set_time_range
-from ecoscope_workflows_core.tasks.groupby import set_groupers as set_groupers
-from ecoscope_workflows_core.tasks.io import set_er_connection as set_er_connection
-from ecoscope_workflows_core.tasks.skip import (
+from ecoscope.platform.tasks.config import set_workflow_details as set_workflow_details
+from ecoscope.platform.tasks.filter import set_time_range as set_time_range
+from ecoscope.platform.tasks.groupby import set_groupers as set_groupers
+from ecoscope.platform.tasks.io import set_er_connection as set_er_connection
+from ecoscope.platform.tasks.skip import (
     any_dependency_skipped as any_dependency_skipped,
 )
-from ecoscope_workflows_core.tasks.skip import any_is_empty_df as any_is_empty_df
-from ecoscope_workflows_core.testing import create_task_magicmock  # 🧪
-from ecoscope_workflows_ext_custom.tasks.io import (
-    get_spatial_features as get_spatial_features,
-)
+from ecoscope.platform.tasks.skip import any_is_empty_df as any_is_empty_df
 from ecoscope_workflows_ext_custom.tasks.results import (
     set_base_maps_pydeck as set_base_maps_pydeck,
 )
+from ecoscope_workflows_ext_mep.tasks.spatial_operations import (
+    get_spatial_features as get_spatial_features_1,
+)
+from wt_contracts import validate as _validate
+from wt_task import task
+from wt_task.testing import create_func_magicmock  # 🧪
 
-get_patrol_observations = create_task_magicmock(  # 🧪
-    anchor="ecoscope_workflows_ext_ecoscope.tasks.io",  # 🧪
+from .. import metadata as _metadata
+
+get_patrol_observations = create_func_magicmock(  # 🧪
+    anchor="ecoscope.platform.tasks.io",  # 🧪
     func_name="get_patrol_observations",  # 🧪
 )  # 🧪
-from ecoscope_workflows_core.tasks.analysis import (
+from ecoscope.platform.tasks.analysis import (
+    calculate_linear_time_density as calculate_linear_time_density,
+)
+from ecoscope.platform.tasks.analysis import create_meshgrid as create_meshgrid
+from ecoscope.platform.tasks.analysis import (
     dataframe_column_nunique as dataframe_column_nunique,
 )
-from ecoscope_workflows_core.tasks.analysis import (
+from ecoscope.platform.tasks.analysis import (
     dataframe_column_sum as dataframe_column_sum,
 )
-from ecoscope_workflows_core.tasks.io import persist_text as persist_text
-from ecoscope_workflows_core.tasks.results import (
+from ecoscope.platform.tasks.analysis import summarize_df as summarize_df
+from ecoscope.platform.tasks.io import persist_df as persist_df
+from ecoscope.platform.tasks.io import persist_text as persist_text
+from ecoscope.platform.tasks.preprocessing import (
+    relocations_to_trajectory as relocations_to_trajectory,
+)
+from ecoscope.platform.tasks.results import (
     create_map_widget_single_view as create_map_widget_single_view,
 )
-from ecoscope_workflows_core.tasks.results import (
+from ecoscope.platform.tasks.results import (
     create_single_value_widget_single_view as create_single_value_widget_single_view,
 )
-from ecoscope_workflows_core.tasks.results import (
+from ecoscope.platform.tasks.results import (
     create_table_widget_single_view as create_table_widget_single_view,
 )
-from ecoscope_workflows_core.tasks.results import gather_dashboard as gather_dashboard
-from ecoscope_workflows_core.tasks.transformation import map_columns as map_columns
-from ecoscope_workflows_core.tasks.transformation import with_unit as with_unit
+from ecoscope.platform.tasks.results import draw_table as draw_table
+from ecoscope.platform.tasks.results import gather_dashboard as gather_dashboard
+from ecoscope.platform.tasks.transformation import (
+    concat_dataframes as concat_dataframes,
+)
+from ecoscope.platform.tasks.transformation import (
+    convert_column_values_to_string as convert_column_values_to_string,
+)
+from ecoscope.platform.tasks.transformation import (
+    decompose_datetime as decompose_datetime,
+)
+from ecoscope.platform.tasks.transformation import map_columns as map_columns
+from ecoscope.platform.tasks.transformation import with_unit as with_unit
 from ecoscope_workflows_ext_custom.tasks.io import (
-    persist_df_wrapper as persist_df_wrapper,
+    persist_df_wrapper as persist_df_wrapper_1,
 )
 from ecoscope_workflows_ext_custom.tasks.results import (
-    create_geojson_layer as create_geojson_layer,
+    create_geojson_layer as create_geojson_layer_1,
 )
-from ecoscope_workflows_ext_custom.tasks.results import (
-    create_spatial_features_layer as create_spatial_features_layer,
-)
-from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map
-from ecoscope_workflows_ext_custom.tasks.results import (
-    view_state_from_geodataframes as view_state_from_geodataframes,
-)
-from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
-    assert_polygon_types as assert_polygon_types,
-)
+from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map_1
 from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
     reproject_gdf as reproject_gdf,
 )
-from ecoscope_workflows_ext_custom.tasks.spatial_ops import spatial_join as spatial_join
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     merge_two_dataframes as merge_two_dataframes,
 )
@@ -80,67 +91,68 @@ from ecoscope_workflows_ext_custom.tasks.transformation import (
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     to_quantity as to_quantity,
 )
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    add_bin_colors as add_bin_colors,
+from ecoscope_workflows_ext_mep.tasks.spatial_operations import (
+    assert_polygon_types as assert_polygon_types,
 )
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    add_index_column as add_index_column,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    add_non_null_flag as add_non_null_flag,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    add_time_since_visit as add_time_since_visit,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    add_visit_bins as add_visit_bins,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    compute_dwell_time as compute_dwell_time,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    compute_patrol_effort_fraction as compute_patrol_effort_fraction,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    hex_column_to_rgba as hex_column_to_rgba,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    operational_days as operational_days,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    order_bin_categories as order_bin_categories,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
+from ecoscope_workflows_ext_mep.tasks.spatial_operations import (
     overlay_gdf as overlay_gdf,
 )
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
-    reset_df_index as reset_df_index,
-)
-from ecoscope_workflows_ext_distance_sample_counts.tasks import (
+from ecoscope_workflows_ext_mep.tasks.spatial_operations import (
     set_spatial_features_opacity as set_spatial_features_opacity,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
-    calculate_linear_time_density as calculate_linear_time_density,
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    add_bin_colors as add_bin_colors,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import (
-    create_meshgrid as create_meshgrid,
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    add_non_null_flag as add_non_null_flag,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.analysis import summarize_df as summarize_df
-from ecoscope_workflows_ext_ecoscope.tasks.preprocessing import (
-    relocations_to_trajectory as relocations_to_trajectory,
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    add_time_since_visit as add_time_since_visit,
 )
-from ecoscope_workflows_ext_ecoscope.tasks.results import draw_table as draw_table
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    add_visit_bins as add_visit_bins,
+)
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    compute_dwell_time as compute_dwell_time,
+)
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    compute_patrol_effort_fraction as compute_patrol_effort_fraction,
+)
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    order_bin_categories as order_bin_categories,
+)
+from ecoscope_workflows_ext_mep.tasks.transformation import (
+    reset_dataframe_index as reset_dataframe_index,
+)
+from ecoscope_workflows_ext_ste.tasks.results import (
+    create_spatial_features_layer as create_spatial_features_layer,
+)
+from ecoscope_workflows_ext_ste.tasks.spatial_operations import (
+    combine_deckgl_map_layers as combine_deckgl_map_layers,
+)
+from ecoscope_workflows_ext_ste.tasks.spatial_operations import (
+    compute_view_state_from_gdf as compute_view_state_from_gdf,
+)
+from ecoscope_workflows_ext_ste.tasks.spatial_operations import (
+    envelope_gdf as envelope_gdf,
+)
+from ecoscope_workflows_ext_ste.tasks.spatial_operations import (
+    spatial_join as spatial_join,
+)
+from ecoscope_workflows_ext_ste.tasks.transformation import (
+    add_rgba_from_hex as add_rgba_from_hex,
+)
 
-from ..params import Params
 
-
-def main(params: Params):
+def main(params: dict[str, Any], validate_params_schema: bool = True):
     warnings.warn("This test script should not be used in production!")  # 🧪
 
-    params_dict = json.loads(params.model_dump_json(exclude_unset=True))
+    if validate_params_schema:
+        _validate(params, _metadata.load_params_schema())
 
     workflow_details = (
-        set_workflow_details.validate()
+        task(set_workflow_details)
+        .validate()
         .set_task_instance_id("workflow_details")
         .handle_errors()
         .with_tracing()
@@ -151,12 +163,13 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("workflow_details") or {}))
+        .partial(**(params.get("workflow_details") or {}))
         .call()
     )
 
     er_client_name = (
-        set_er_connection.validate()
+        task(set_er_connection)
+        .validate()
         .set_task_instance_id("er_client_name")
         .handle_errors()
         .with_tracing()
@@ -167,28 +180,13 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("er_client_name") or {}))
-        .call()
-    )
-
-    groupers = (
-        set_groupers.validate()
-        .set_task_instance_id("groupers")
-        .handle_errors()
-        .with_tracing()
-        .skipif(
-            conditions=[
-                any_is_empty_df,
-                any_dependency_skipped,
-            ],
-            unpack_depth=1,
-        )
-        .partial(groupers=[], **(params_dict.get("groupers") or {}))
+        .partial(**(params.get("er_client_name") or {}))
         .call()
     )
 
     time_range = (
-        set_time_range.validate()
+        task(set_time_range)
+        .validate()
         .set_task_instance_id("time_range")
         .handle_errors()
         .with_tracing()
@@ -199,14 +197,30 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            time_format="%d %b %Y %H:%M:%S", **(params_dict.get("time_range") or {})
+        .partial(**(params.get("time_range") or {}))
+        .call()
+    )
+
+    groupers = (
+        task(set_groupers)
+        .validate()
+        .set_task_instance_id("groupers")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
         )
+        .partial(groupers=[], **(params.get("groupers") or {}))
         .call()
     )
 
     base_map_defs = (
-        set_base_maps_pydeck.validate()
+        task(set_base_maps_pydeck)
+        .validate()
         .set_task_instance_id("base_map_defs")
         .handle_errors()
         .with_tracing()
@@ -217,12 +231,13 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(**(params_dict.get("base_map_defs") or {}))
+        .partial(**(params.get("base_map_defs") or {}))
         .call()
     )
 
     select_geo_er = (
-        get_spatial_features.validate()
+        task(get_spatial_features_1)
+        .validate()
         .set_task_instance_id("select_geo_er")
         .handle_errors()
         .with_tracing()
@@ -236,13 +251,14 @@ def main(params: Params):
         .partial(
             client=er_client_name,
             legend_title="Legend",
-            **(params_dict.get("select_geo_er") or {}),
+            **(params.get("select_geo_er") or {}),
         )
         .call()
     )
 
     get_patrol_obs = (
-        get_patrol_observations.validate()
+        task(get_patrol_observations)
+        # 🧪 validation omitted for mocked IO task (returns pre-loaded example data)
         .set_task_instance_id("get_patrol_obs")
         .handle_errors()
         .with_tracing()
@@ -259,15 +275,16 @@ def main(params: Params):
             status=["done"],
             include_patrol_details=True,
             raise_on_empty=True,
-            sub_page_size=100,
+            sub_page_size=150,
             patrols_overlap_daterange=True,
-            **(params_dict.get("get_patrol_obs") or {}),
+            **(params.get("get_patrol_obs") or {}),
         )
         .call()
     )
 
     patrol_obs_trajs = (
-        relocations_to_trajectory.validate()
+        task(relocations_to_trajectory)
+        .validate()
         .set_task_instance_id("patrol_obs_trajs")
         .handle_errors()
         .with_tracing()
@@ -278,14 +295,13 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(
-            relocations=get_patrol_obs, **(params_dict.get("patrol_obs_trajs") or {})
-        )
+        .partial(relocations=get_patrol_obs, **(params.get("patrol_obs_trajs") or {}))
         .call()
     )
 
     assert_polygon = (
-        assert_polygon_types.validate()
+        task(assert_polygon_types)
+        .validate()
         .set_task_instance_id("assert_polygon")
         .handle_errors()
         .with_tracing()
@@ -296,12 +312,13 @@ def main(params: Params):
             ],
             unpack_depth=1,
         )
-        .partial(gdf=select_geo_er, **(params_dict.get("assert_polygon") or {}))
+        .partial(gdf=select_geo_er, **(params.get("assert_polygon") or {}))
         .call()
     )
 
     reproject_spatial_3857 = (
-        reproject_gdf.validate()
+        task(reproject_gdf)
+        .validate()
         .set_task_instance_id("reproject_spatial_3857")
         .handle_errors()
         .with_tracing()
@@ -315,13 +332,14 @@ def main(params: Params):
         .partial(
             gdf=select_geo_er,
             target_crs="EPSG:3857",
-            **(params_dict.get("reproject_spatial_3857") or {}),
+            **(params.get("reproject_spatial_3857") or {}),
         )
         .call()
     )
 
     persist_spatial_file = (
-        persist_df_wrapper.validate()
+        task(persist_df_wrapper_1)
+        .validate()
         .set_task_instance_id("persist_spatial_file")
         .handle_errors()
         .with_tracing()
@@ -335,17 +353,18 @@ def main(params: Params):
         .partial(
             df=reproject_spatial_3857,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename="spatial_file",
+            filename="er_spatial_file",
             filetypes=["geoparquet"],
-            filename_prefix="er_spatial_file",
             sanitize=True,
-            **(params_dict.get("persist_spatial_file") or {}),
+            filename_prefix="earthranger",
+            **(params.get("persist_spatial_file") or {}),
         )
         .call()
     )
 
     create_geo_meshgrid = (
-        create_meshgrid.validate()
+        task(create_meshgrid)
+        .validate()
         .set_task_instance_id("create_geo_meshgrid")
         .handle_errors()
         .with_tracing()
@@ -360,13 +379,14 @@ def main(params: Params):
             aoi=reproject_spatial_3857,
             crs="EPSG:3857",
             intersecting_only=True,
-            **(params_dict.get("create_geo_meshgrid") or {}),
+            **(params.get("create_geo_meshgrid") or {}),
         )
         .call()
     )
 
     overlay_meshgrid_spatial = (
-        overlay_gdf.validate()
+        task(overlay_gdf)
+        .validate()
         .set_task_instance_id("overlay_meshgrid_spatial")
         .handle_errors()
         .with_tracing()
@@ -383,13 +403,14 @@ def main(params: Params):
             how="intersection",
             keep_geom_type=True,
             make_valid=True,
-            **(params_dict.get("overlay_meshgrid_spatial") or {}),
+            **(params.get("overlay_meshgrid_spatial") or {}),
         )
         .call()
     )
 
     meshgrid_idx_id = (
-        add_index_column.validate()
+        task(reset_dataframe_index)
+        .validate()
         .set_task_instance_id("meshgrid_idx_id")
         .handle_errors()
         .with_tracing()
@@ -401,15 +422,16 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            gdf=overlay_meshgrid_spatial,
-            column="cell_id",
-            **(params_dict.get("meshgrid_idx_id") or {}),
+            df=overlay_meshgrid_spatial,
+            drop=False,
+            **(params.get("meshgrid_idx_id") or {}),
         )
         .call()
     )
 
     reproject_trajs = (
-        reproject_gdf.validate()
+        task(reproject_gdf)
+        .validate()
         .set_task_instance_id("reproject_trajs")
         .handle_errors()
         .with_tracing()
@@ -423,13 +445,14 @@ def main(params: Params):
         .partial(
             gdf=patrol_obs_trajs,
             target_crs="EPSG:3857",
-            **(params_dict.get("reproject_trajs") or {}),
+            **(params.get("reproject_trajs") or {}),
         )
         .call()
     )
 
     select_patrol_columns = (
-        select_columns.validate()
+        task(select_columns)
+        .validate()
         .set_task_instance_id("select_patrol_columns")
         .handle_errors()
         .with_tracing()
@@ -444,13 +467,14 @@ def main(params: Params):
             df=reproject_trajs,
             columns=["segment_start", "segment_end", "geometry"],
             raise_on_missing=True,
-            **(params_dict.get("select_patrol_columns") or {}),
+            **(params.get("select_patrol_columns") or {}),
         )
         .call()
     )
 
     spatial_join_patrol_trajs = (
-        spatial_join.validate()
+        task(spatial_join)
+        .validate()
         .set_task_instance_id("spatial_join_patrol_trajs")
         .handle_errors()
         .with_tracing()
@@ -466,13 +490,14 @@ def main(params: Params):
             right_df=meshgrid_idx_id,
             how="inner",
             predicate="intersects",
-            **(params_dict.get("spatial_join_patrol_trajs") or {}),
+            **(params.get("spatial_join_patrol_trajs") or {}),
         )
         .call()
     )
 
     summarize_df_grids = (
-        summarize_df.validate()
+        task(summarize_df)
+        .validate()
         .set_task_instance_id("summarize_df_grids")
         .handle_errors()
         .with_tracing()
@@ -485,7 +510,7 @@ def main(params: Params):
         )
         .partial(
             df=spatial_join_patrol_trajs,
-            groupby_cols=["cell_id"],
+            groupby_cols=["index"],
             reset_index=True,
             summary_params=[
                 {
@@ -505,13 +530,14 @@ def main(params: Params):
                     "decimal_places": None,
                 },
             ],
-            **(params_dict.get("summarize_df_grids") or {}),
+            **(params.get("summarize_df_grids") or {}),
         )
         .call()
     )
 
     add_time = (
-        add_time_since_visit.validate()
+        task(add_time_since_visit)
+        .validate()
         .set_task_instance_id("add_time")
         .handle_errors()
         .with_tracing()
@@ -525,13 +551,14 @@ def main(params: Params):
         .partial(
             df=summarize_df_grids,
             time_range=time_range,
-            **(params_dict.get("add_time") or {}),
+            **(params.get("add_time") or {}),
         )
         .call()
     )
 
     merge_gridded_stats = (
-        merge_two_dataframes.validate()
+        task(merge_two_dataframes)
+        .validate()
         .set_task_instance_id("merge_gridded_stats")
         .handle_errors()
         .with_tracing()
@@ -546,19 +573,20 @@ def main(params: Params):
             left=meshgrid_idx_id,
             right=add_time,
             how="left",
-            on="cell_id",
+            on="index",
             left_on=None,
             right_on=None,
             left_index=False,
             right_index=False,
             fillna_value=None,
-            **(params_dict.get("merge_gridded_stats") or {}),
+            **(params.get("merge_gridded_stats") or {}),
         )
         .call()
     )
 
     add_null_flag = (
-        add_non_null_flag.validate()
+        task(add_non_null_flag)
+        .validate()
         .set_task_instance_id("add_null_flag")
         .handle_errors()
         .with_tracing()
@@ -573,13 +601,14 @@ def main(params: Params):
             df=merge_gridded_stats,
             source_column="days_since_visit",
             flag_column="visited",
-            **(params_dict.get("add_null_flag") or {}),
+            **(params.get("add_null_flag") or {}),
         )
         .call()
     )
 
     add_custom_visit_bins = (
-        add_visit_bins.validate()
+        task(add_visit_bins)
+        .validate()
         .set_task_instance_id("add_custom_visit_bins")
         .handle_errors()
         .with_tracing()
@@ -593,17 +622,20 @@ def main(params: Params):
         .partial(
             df=add_null_flag,
             col="days_since_visit",
-            visited_col="visited",
+            mask_col="visited",
             new_col="visit_bin",
             bins=5,
             scheme="natural_breaks",
-            **(params_dict.get("add_custom_visit_bins") or {}),
+            no_data_label="Unvisited",
+            use_abs=True,
+            **(params.get("add_custom_visit_bins") or {}),
         )
         .call()
     )
 
     add_visit_bin_colors = (
-        add_bin_colors.validate()
+        task(add_bin_colors)
+        .validate()
         .set_task_instance_id("add_visit_bin_colors")
         .handle_errors()
         .with_tracing()
@@ -619,14 +651,16 @@ def main(params: Params):
             col="visit_bin",
             new_col="hex_color",
             cmap={"type_": "palette", "name": "RdYlGn"},
-            unvisited="#808080",
-            **(params_dict.get("add_visit_bin_colors") or {}),
+            no_data_color="#808080",
+            no_data_label="Unvisited",
+            **(params.get("add_visit_bin_colors") or {}),
         )
         .call()
     )
 
     reproject_4326 = (
-        reproject_gdf.validate()
+        task(reproject_gdf)
+        .validate()
         .set_task_instance_id("reproject_4326")
         .handle_errors()
         .with_tracing()
@@ -640,13 +674,14 @@ def main(params: Params):
         .partial(
             gdf=add_visit_bin_colors,
             target_crs="EPSG:4326",
-            **(params_dict.get("reproject_4326") or {}),
+            **(params.get("reproject_4326") or {}),
         )
         .call()
     )
 
     persist_visit = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_visit")
         .handle_errors()
         .with_tracing()
@@ -660,17 +695,16 @@ def main(params: Params):
         .partial(
             df=reproject_4326,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename=None,
-            filetypes=["geoparquet"],
-            filename_prefix="days_since_patrol_visit",
-            sanitize=True,
-            **(params_dict.get("persist_visit") or {}),
+            filename="days_since_patrol_visit",
+            filetype="gpkg",
+            **(params.get("persist_visit") or {}),
         )
         .call()
     )
 
     reset_patrol_trajs = (
-        reset_df_index.validate()
+        task(reset_dataframe_index)
+        .validate()
         .set_task_instance_id("reset_patrol_trajs")
         .handle_errors()
         .with_tracing()
@@ -682,15 +716,14 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=reproject_trajs,
-            drop=False,
-            **(params_dict.get("reset_patrol_trajs") or {}),
+            df=reproject_trajs, drop=False, **(params.get("reset_patrol_trajs") or {})
         )
         .call()
     )
 
     compute_patrol_dwell = (
-        compute_dwell_time.validate()
+        task(compute_dwell_time)
+        .validate()
         .set_task_instance_id("compute_patrol_dwell")
         .handle_errors()
         .with_tracing()
@@ -704,13 +737,14 @@ def main(params: Params):
         .partial(
             patrol_trajectories=reset_patrol_trajs,
             gridded_spatial_feature=meshgrid_idx_id,
-            **(params_dict.get("compute_patrol_dwell") or {}),
+            **(params.get("compute_patrol_dwell") or {}),
         )
         .call()
     )
 
     merge_dwell_gdf = (
-        merge_two_dataframes.validate()
+        task(merge_two_dataframes)
+        .validate()
         .set_task_instance_id("merge_dwell_gdf")
         .handle_errors()
         .with_tracing()
@@ -725,19 +759,20 @@ def main(params: Params):
             left=meshgrid_idx_id,
             right=compute_patrol_dwell,
             how="left",
-            on="cell_id",
+            on="index",
             left_on=None,
             right_on=None,
             left_index=False,
             right_index=False,
             fillna_value=None,
-            **(params_dict.get("merge_dwell_gdf") or {}),
+            **(params.get("merge_dwell_gdf") or {}),
         )
         .call()
     )
 
     reproject_dwell_gdf = (
-        reproject_gdf.validate()
+        task(reproject_gdf)
+        .validate()
         .set_task_instance_id("reproject_dwell_gdf")
         .handle_errors()
         .with_tracing()
@@ -751,13 +786,14 @@ def main(params: Params):
         .partial(
             gdf=merge_dwell_gdf,
             target_crs="EPSG:4326",
-            **(params_dict.get("reproject_dwell_gdf") or {}),
+            **(params.get("reproject_dwell_gdf") or {}),
         )
         .call()
     )
 
     add_null_dwell_flag = (
-        add_non_null_flag.validate()
+        task(add_non_null_flag)
+        .validate()
         .set_task_instance_id("add_null_dwell_flag")
         .handle_errors()
         .with_tracing()
@@ -772,13 +808,14 @@ def main(params: Params):
             df=reproject_dwell_gdf,
             source_column="hours_in_cell",
             flag_column="visited",
-            **(params_dict.get("add_null_dwell_flag") or {}),
+            **(params.get("add_null_dwell_flag") or {}),
         )
         .call()
     )
 
     add_custom_dwell_bins = (
-        add_visit_bins.validate()
+        task(add_visit_bins)
+        .validate()
         .set_task_instance_id("add_custom_dwell_bins")
         .handle_errors()
         .with_tracing()
@@ -792,17 +829,20 @@ def main(params: Params):
         .partial(
             df=add_null_dwell_flag,
             col="hours_in_cell",
-            visited_col="visited",
+            mask_col="visited",
             new_col="visit_bin",
             bins=5,
             scheme="natural_breaks",
-            **(params_dict.get("add_custom_dwell_bins") or {}),
+            no_data_label="Unvisited",
+            use_abs=True,
+            **(params.get("add_custom_dwell_bins") or {}),
         )
         .call()
     )
 
     add_dwell_bin_colors = (
-        add_bin_colors.validate()
+        task(add_bin_colors)
+        .validate()
         .set_task_instance_id("add_dwell_bin_colors")
         .handle_errors()
         .with_tracing()
@@ -818,14 +858,16 @@ def main(params: Params):
             col="visit_bin",
             new_col="hex_color",
             cmap={"type_": "palette", "name": "RdYlGn"},
-            unvisited="#808080",
-            **(params_dict.get("add_dwell_bin_colors") or {}),
+            no_data_color="#808080",
+            no_data_label="Unvisited",
+            **(params.get("add_dwell_bin_colors") or {}),
         )
         .call()
     )
 
     persist_dwell_geoparquet = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_dwell_geoparquet")
         .handle_errors()
         .with_tracing()
@@ -839,17 +881,16 @@ def main(params: Params):
         .partial(
             df=add_dwell_bin_colors,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename=None,
-            filetypes=["geoparquet"],
-            filename_prefix="time_spent_per_cell",
-            sanitize=True,
-            **(params_dict.get("persist_dwell_geoparquet") or {}),
+            filename="time_spent_per_cell",
+            filetype="gpkg",
+            **(params.get("persist_dwell_geoparquet") or {}),
         )
         .call()
     )
 
     calc_ltd_aoi = (
-        calculate_linear_time_density.validate()
+        task(calculate_linear_time_density)
+        .validate()
         .set_task_instance_id("calc_ltd_aoi")
         .handle_errors()
         .with_tracing()
@@ -864,13 +905,60 @@ def main(params: Params):
             percentiles=None,
             trajectory_gdf=reproject_trajs,
             meshgrid=overlay_meshgrid_spatial,
-            **(params_dict.get("calc_ltd_aoi") or {}),
+            **(params.get("calc_ltd_aoi") or {}),
+        )
+        .call()
+    )
+
+    ltd_unvisited_diff = (
+        task(overlay_gdf)
+        .validate()
+        .set_task_instance_id("ltd_unvisited_diff")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            left=overlay_meshgrid_spatial,
+            right=calc_ltd_aoi,
+            how="difference",
+            keep_geom_type=False,
+            make_valid=True,
+            **(params.get("ltd_unvisited_diff") or {}),
+        )
+        .call()
+    )
+
+    calc_ltd_aoi_full = (
+        task(concat_dataframes)
+        .validate()
+        .set_task_instance_id("calc_ltd_aoi_full")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            dfs=[calc_ltd_aoi, ltd_unvisited_diff],
+            ensure_columns=["percentile", "density", "area_sqkm"],
+            reset_index=True,
+            **(params.get("calc_ltd_aoi_full") or {}),
         )
         .call()
     )
 
     persist_ltd_geoparquet = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_ltd_geoparquet")
         .handle_errors()
         .with_tracing()
@@ -882,19 +970,18 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            df=calc_ltd_aoi,
+            df=calc_ltd_aoi_full,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename=None,
-            filetypes=["geoparquet"],
-            filename_prefix="patrols_linear_time_density",
-            sanitize=True,
-            **(params_dict.get("persist_ltd_geoparquet") or {}),
+            filename="patrols_linear_time_density",
+            filetype="gpkg",
+            **(params.get("persist_ltd_geoparquet") or {}),
         )
         .call()
     )
 
     reproject_ltd = (
-        reproject_gdf.validate()
+        task(reproject_gdf)
+        .validate()
         .set_task_instance_id("reproject_ltd")
         .handle_errors()
         .with_tracing()
@@ -906,15 +993,16 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            gdf=calc_ltd_aoi,
+            gdf=calc_ltd_aoi_full,
             target_crs="EPSG:4326",
-            **(params_dict.get("reproject_ltd") or {}),
+            **(params.get("reproject_ltd") or {}),
         )
         .call()
     )
 
     add_null_ltd_flag = (
-        add_non_null_flag.validate()
+        task(add_non_null_flag)
+        .validate()
         .set_task_instance_id("add_null_ltd_flag")
         .handle_errors()
         .with_tracing()
@@ -929,13 +1017,14 @@ def main(params: Params):
             df=reproject_ltd,
             source_column="percentile",
             flag_column="visited",
-            **(params_dict.get("add_null_ltd_flag") or {}),
+            **(params.get("add_null_ltd_flag") or {}),
         )
         .call()
     )
 
     add_custom_ltd_bins = (
-        add_visit_bins.validate()
+        task(add_visit_bins)
+        .validate()
         .set_task_instance_id("add_custom_ltd_bins")
         .handle_errors()
         .with_tracing()
@@ -949,17 +1038,20 @@ def main(params: Params):
         .partial(
             df=add_null_ltd_flag,
             col="percentile",
-            visited_col="visited",
+            mask_col="visited",
             new_col="visit_bin",
             bins=5,
             scheme="natural_breaks",
-            **(params_dict.get("add_custom_ltd_bins") or {}),
+            no_data_label="Unvisited",
+            use_abs=True,
+            **(params.get("add_custom_ltd_bins") or {}),
         )
         .call()
     )
 
     add_ltd_bin_colors = (
-        add_bin_colors.validate()
+        task(add_bin_colors)
+        .validate()
         .set_task_instance_id("add_ltd_bin_colors")
         .handle_errors()
         .with_tracing()
@@ -975,14 +1067,16 @@ def main(params: Params):
             col="visit_bin",
             new_col="hex_color",
             cmap={"type_": "palette", "name": "RdYlGn"},
-            unvisited="#808080",
-            **(params_dict.get("add_ltd_bin_colors") or {}),
+            no_data_color="#808080",
+            no_data_label="Unvisited",
+            **(params.get("add_ltd_bin_colors") or {}),
         )
         .call()
     )
 
     rename_patrol_cols = (
-        map_columns.validate()
+        task(map_columns)
+        .validate()
         .set_task_instance_id("rename_patrol_cols")
         .handle_errors()
         .with_tracing()
@@ -996,22 +1090,50 @@ def main(params: Params):
         .partial(
             raise_if_not_found=True,
             df=reproject_trajs,
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={
                 "extra__patrol_type__value": "patrol_type",
                 "extra__patrol_serial_number": "patrol_serial_number",
                 "extra__patrol_status": "patrol_status",
-                "extra__patrol_subject": "Name",
-                "extra__subject_id": "ID",
+                "extra__patrol_subject": "patrol_subject",
+                "extra__subject_id": "subject_id",
+                "extra__patrol_id": "patrol_id",
+                "extra__patrol_title": "name",
             },
-            **(params_dict.get("rename_patrol_cols") or {}),
+            **(params.get("rename_patrol_cols") or {}),
+        )
+        .call()
+    )
+
+    patrol_segment_date = (
+        task(decompose_datetime)
+        .validate()
+        .set_task_instance_id("patrol_segment_date")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=rename_patrol_cols,
+            datetime_column="segment_start",
+            components=["date"],
+            remove_source=False,
+            column_prefix=None,
+            **(params.get("patrol_segment_date") or {}),
         )
         .call()
     )
 
     op_summary_table = (
-        operational_days.validate()
+        task(summarize_df)
+        .validate()
         .set_task_instance_id("op_summary_table")
         .handle_errors()
         .with_tracing()
@@ -1023,17 +1145,46 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            trajs=rename_patrol_cols,
-            segment_start="segment_start",
-            segment_end="segment_end",
-            groupby_cols=["ID", "Name"],
-            **(params_dict.get("op_summary_table") or {}),
+            df=patrol_segment_date,
+            groupby_cols=["subject_id", "patrol_subject"],
+            reset_index=True,
+            summary_params=[
+                {
+                    "display_name": "distance_km",
+                    "aggregator": "sum",
+                    "column": "dist_meters",
+                    "convert_units": True,
+                    "original_unit": "m",
+                    "new_unit": "km",
+                    "decimal_places": 1,
+                },
+                {
+                    "display_name": "duration_hrs",
+                    "aggregator": "sum",
+                    "column": "timespan_seconds",
+                    "convert_units": True,
+                    "original_unit": "s",
+                    "new_unit": "h",
+                    "decimal_places": 1,
+                },
+                {
+                    "display_name": "patrol_days",
+                    "aggregator": "nunique",
+                    "column": "segment_start_date",
+                    "convert_units": False,
+                    "original_unit": None,
+                    "new_unit": None,
+                    "decimal_places": None,
+                },
+            ],
+            **(params.get("op_summary_table") or {}),
         )
         .call()
     )
 
     persist_oper_table = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_oper_table")
         .handle_errors()
         .with_tracing()
@@ -1048,16 +1199,15 @@ def main(params: Params):
             df=op_summary_table,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename=None,
-            filetypes=["csv"],
-            filename_prefix="patrol_operational_days",
-            sanitize=False,
-            **(params_dict.get("persist_oper_table") or {}),
+            filetype="csv",
+            **(params.get("persist_oper_table") or {}),
         )
         .call()
     )
 
     persist_patrol_obs = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_patrol_obs")
         .handle_errors()
         .with_tracing()
@@ -1071,17 +1221,16 @@ def main(params: Params):
         .partial(
             df=get_patrol_obs,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename=None,
-            filetypes=["geoparquet"],
-            filename_prefix="patrol_observations",
-            sanitize=True,
-            **(params_dict.get("persist_patrol_obs") or {}),
+            filename="patrol_observations",
+            filetype="gpkg",
+            **(params.get("persist_patrol_obs") or {}),
         )
         .call()
     )
 
     persist_patrol_trajs = (
-        persist_df_wrapper.validate()
+        task(persist_df)
+        .validate()
         .set_task_instance_id("persist_patrol_trajs")
         .handle_errors()
         .with_tracing()
@@ -1095,17 +1244,16 @@ def main(params: Params):
         .partial(
             df=patrol_obs_trajs,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename=None,
-            filetypes=["geoparquet"],
-            filename_prefix="patrol_trajectories",
-            sanitize=True,
-            **(params_dict.get("persist_patrol_trajs") or {}),
+            filename="patrol_trajectories",
+            filetype="gpkg",
+            **(params.get("persist_patrol_trajs") or {}),
         )
         .call()
     )
 
     spatial_features_opacity = (
-        set_spatial_features_opacity.validate()
+        task(set_spatial_features_opacity)
+        .validate()
         .set_task_instance_id("spatial_features_opacity")
         .handle_errors()
         .with_tracing()
@@ -1120,13 +1268,14 @@ def main(params: Params):
             gdf=select_geo_er,
             fill_opacity=0.0,
             line_opacity=1.0,
-            **(params_dict.get("spatial_features_opacity") or {}),
+            **(params.get("spatial_features_opacity") or {}),
         )
         .call()
     )
 
     spatial_features_layer = (
-        create_spatial_features_layer.validate()
+        task(create_spatial_features_layer)
+        .validate()
         .set_task_instance_id("spatial_features_layer")
         .handle_errors()
         .with_tracing()
@@ -1138,15 +1287,33 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            geodataframe=spatial_features_opacity,
-            **(params_dict.get("spatial_features_layer") or {}),
+            geodataframes=[spatial_features_opacity],
+            **(params.get("spatial_features_layer") or {}),
         )
         .call()
     )
 
-    overall_zoom_value = (
-        view_state_from_geodataframes.validate()
-        .set_task_instance_id("overall_zoom_value")
+    zoom_to_envelope = (
+        task(envelope_gdf)
+        .validate()
+        .set_task_instance_id("zoom_to_envelope")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(gdf=spatial_features_opacity, **(params.get("zoom_to_envelope") or {}))
+        .call()
+    )
+
+    gdf_image_extent = (
+        task(compute_view_state_from_gdf)
+        .validate()
+        .set_task_instance_id("gdf_image_extent")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1157,16 +1324,19 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            geodataframes=[select_geo_er],
+            pitch=0,
+            bearing=0,
             max_zoom=15,
-            **(params_dict.get("overall_zoom_value") or {}),
+            gdf=zoom_to_envelope,
+            **(params.get("gdf_image_extent") or {}),
         )
         .call()
     )
 
-    add_time_visit_rgba = (
-        hex_column_to_rgba.validate()
-        .set_task_instance_id("add_time_visit_rgba")
+    decat_time_visit_hex = (
+        task(convert_column_values_to_string)
+        .validate()
+        .set_task_instance_id("decat_time_visit_hex")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1178,15 +1348,37 @@ def main(params: Params):
         )
         .partial(
             df=reproject_4326,
+            columns=["hex_color"],
+            **(params.get("decat_time_visit_hex") or {}),
+        )
+        .call()
+    )
+
+    add_time_visit_rgba = (
+        task(add_rgba_from_hex)
+        .validate()
+        .set_task_instance_id("add_time_visit_rgba")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=decat_time_visit_hex,
             column="hex_color",
             new_column="rgba_color",
-            **(params_dict.get("add_time_visit_rgba") or {}),
+            **(params.get("add_time_visit_rgba") or {}),
         )
         .call()
     )
 
     order_bin_visit_since = (
-        order_bin_categories.validate()
+        task(order_bin_categories)
+        .validate()
         .set_task_instance_id("order_bin_visit_since")
         .handle_errors()
         .with_tracing()
@@ -1200,13 +1392,14 @@ def main(params: Params):
         .partial(
             df=add_time_visit_rgba,
             bin_column="visit_bin",
-            **(params_dict.get("order_bin_visit_since") or {}),
+            **(params.get("order_bin_visit_since") or {}),
         )
         .call()
     )
 
     create_time_since_layer = (
-        create_geojson_layer.validate()
+        task(create_geojson_layer_1)
+        .validate()
         .set_task_instance_id("create_time_since_layer")
         .handle_errors()
         .with_tracing()
@@ -1236,13 +1429,35 @@ def main(params: Params):
                 "sort": "ascending",
                 "label_suffix": None,
             },
-            **(params_dict.get("create_time_since_layer") or {}),
+            **(params.get("create_time_since_layer") or {}),
+        )
+        .call()
+    )
+
+    combine_time_since_layers = (
+        task(combine_deckgl_map_layers)
+        .validate()
+        .set_task_instance_id("combine_time_since_layers")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            static_layers=spatial_features_layer,
+            grouped_layers=create_time_since_layer,
+            **(params.get("combine_time_since_layers") or {}),
         )
         .call()
     )
 
     draw_time_since_map = (
-        draw_map.validate()
+        task(draw_map_1)
+        .validate()
         .set_task_instance_id("draw_time_since_map")
         .handle_errors()
         .with_tracing()
@@ -1257,17 +1472,18 @@ def main(params: Params):
             max_zoom=10,
             static=False,
             title=None,
-            geo_layers=[create_time_since_layer, spatial_features_layer],
+            geo_layers=combine_time_since_layers,
             tile_layers=base_map_defs,
             legend_style={"placement": "bottom-right"},
-            view_state=overall_zoom_value,
-            **(params_dict.get("draw_time_since_map") or {}),
+            view_state=gdf_image_extent,
+            **(params.get("draw_time_since_map") or {}),
         )
         .call()
     )
 
     time_since_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("time_since_urls")
         .handle_errors()
         .with_tracing()
@@ -1282,14 +1498,15 @@ def main(params: Params):
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             text=draw_time_since_map,
             filename="days_since_patrol_visit_map.html",
-            **(params_dict.get("time_since_urls") or {}),
+            **(params.get("time_since_urls") or {}),
         )
         .call()
     )
 
-    add_dwell_rgba = (
-        hex_column_to_rgba.validate()
-        .set_task_instance_id("add_dwell_rgba")
+    decat_dwell_hex = (
+        task(convert_column_values_to_string)
+        .validate()
+        .set_task_instance_id("decat_dwell_hex")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1301,15 +1518,37 @@ def main(params: Params):
         )
         .partial(
             df=add_dwell_bin_colors,
+            columns=["hex_color"],
+            **(params.get("decat_dwell_hex") or {}),
+        )
+        .call()
+    )
+
+    add_dwell_rgba = (
+        task(add_rgba_from_hex)
+        .validate()
+        .set_task_instance_id("add_dwell_rgba")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=decat_dwell_hex,
             column="hex_color",
             new_column="rgba_color",
-            **(params_dict.get("add_dwell_rgba") or {}),
+            **(params.get("add_dwell_rgba") or {}),
         )
         .call()
     )
 
     order_bin_dwell_since = (
-        order_bin_categories.validate()
+        task(order_bin_categories)
+        .validate()
         .set_task_instance_id("order_bin_dwell_since")
         .handle_errors()
         .with_tracing()
@@ -1323,13 +1562,14 @@ def main(params: Params):
         .partial(
             df=add_dwell_rgba,
             bin_column="visit_bin",
-            **(params_dict.get("order_bin_dwell_since") or {}),
+            **(params.get("order_bin_dwell_since") or {}),
         )
         .call()
     )
 
     create_dwell_layer = (
-        create_geojson_layer.validate()
+        task(create_geojson_layer_1)
+        .validate()
         .set_task_instance_id("create_dwell_layer")
         .handle_errors()
         .with_tracing()
@@ -1359,13 +1599,35 @@ def main(params: Params):
                 "sort": "ascending",
                 "label_suffix": None,
             },
-            **(params_dict.get("create_dwell_layer") or {}),
+            **(params.get("create_dwell_layer") or {}),
+        )
+        .call()
+    )
+
+    combine_dwell_layers = (
+        task(combine_deckgl_map_layers)
+        .validate()
+        .set_task_instance_id("combine_dwell_layers")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            static_layers=spatial_features_layer,
+            grouped_layers=create_dwell_layer,
+            **(params.get("combine_dwell_layers") or {}),
         )
         .call()
     )
 
     draw_dwell_map = (
-        draw_map.validate()
+        task(draw_map_1)
+        .validate()
         .set_task_instance_id("draw_dwell_map")
         .handle_errors()
         .with_tracing()
@@ -1380,17 +1642,18 @@ def main(params: Params):
             max_zoom=10,
             static=False,
             title=None,
-            geo_layers=[create_dwell_layer, spatial_features_layer],
+            geo_layers=combine_dwell_layers,
             tile_layers=base_map_defs,
             legend_style={"placement": "bottom-right"},
-            view_state=overall_zoom_value,
-            **(params_dict.get("draw_dwell_map") or {}),
+            view_state=gdf_image_extent,
+            **(params.get("draw_dwell_map") or {}),
         )
         .call()
     )
 
     dwell_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("dwell_urls")
         .handle_errors()
         .with_tracing()
@@ -1405,14 +1668,15 @@ def main(params: Params):
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             text=draw_dwell_map,
             filename="time_spent_per_grid_map.html",
-            **(params_dict.get("dwell_urls") or {}),
+            **(params.get("dwell_urls") or {}),
         )
         .call()
     )
 
-    add_ltd_rgba = (
-        hex_column_to_rgba.validate()
-        .set_task_instance_id("add_ltd_rgba")
+    decat_ltd_hex = (
+        task(convert_column_values_to_string)
+        .validate()
+        .set_task_instance_id("decat_ltd_hex")
         .handle_errors()
         .with_tracing()
         .skipif(
@@ -1424,15 +1688,37 @@ def main(params: Params):
         )
         .partial(
             df=add_ltd_bin_colors,
+            columns=["hex_color"],
+            **(params.get("decat_ltd_hex") or {}),
+        )
+        .call()
+    )
+
+    add_ltd_rgba = (
+        task(add_rgba_from_hex)
+        .validate()
+        .set_task_instance_id("add_ltd_rgba")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            df=decat_ltd_hex,
             column="hex_color",
             new_column="rgba_color",
-            **(params_dict.get("add_ltd_rgba") or {}),
+            **(params.get("add_ltd_rgba") or {}),
         )
         .call()
     )
 
     order_bin_ltd_since = (
-        order_bin_categories.validate()
+        task(order_bin_categories)
+        .validate()
         .set_task_instance_id("order_bin_ltd_since")
         .handle_errors()
         .with_tracing()
@@ -1446,13 +1732,14 @@ def main(params: Params):
         .partial(
             df=add_ltd_rgba,
             bin_column="visit_bin",
-            **(params_dict.get("order_bin_ltd_since") or {}),
+            **(params.get("order_bin_ltd_since") or {}),
         )
         .call()
     )
 
     create_ltd_layer = (
-        create_geojson_layer.validate()
+        task(create_geojson_layer_1)
+        .validate()
         .set_task_instance_id("create_ltd_layer")
         .handle_errors()
         .with_tracing()
@@ -1482,13 +1769,35 @@ def main(params: Params):
                 "sort": "ascending",
                 "label_suffix": None,
             },
-            **(params_dict.get("create_ltd_layer") or {}),
+            **(params.get("create_ltd_layer") or {}),
+        )
+        .call()
+    )
+
+    combine_ltd_layers = (
+        task(combine_deckgl_map_layers)
+        .validate()
+        .set_task_instance_id("combine_ltd_layers")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            static_layers=spatial_features_layer,
+            grouped_layers=create_ltd_layer,
+            **(params.get("combine_ltd_layers") or {}),
         )
         .call()
     )
 
     draw_ltd_map = (
-        draw_map.validate()
+        task(draw_map_1)
+        .validate()
         .set_task_instance_id("draw_ltd_map")
         .handle_errors()
         .with_tracing()
@@ -1503,17 +1812,18 @@ def main(params: Params):
             max_zoom=10,
             static=False,
             title=None,
-            geo_layers=[create_ltd_layer, spatial_features_layer],
+            geo_layers=combine_ltd_layers,
             tile_layers=base_map_defs,
             legend_style={"placement": "bottom-right"},
-            view_state=overall_zoom_value,
-            **(params_dict.get("draw_ltd_map") or {}),
+            view_state=gdf_image_extent,
+            **(params.get("draw_ltd_map") or {}),
         )
         .call()
     )
 
     ltd_urls = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("ltd_urls")
         .handle_errors()
         .with_tracing()
@@ -1528,13 +1838,14 @@ def main(params: Params):
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             text=draw_ltd_map,
             filename="ltd_patrols_map.html",
-            **(params_dict.get("ltd_urls") or {}),
+            **(params.get("ltd_urls") or {}),
         )
         .call()
     )
 
     total_patrols = (
-        dataframe_column_nunique.validate()
+        task(dataframe_column_nunique)
+        .validate()
         .set_task_instance_id("total_patrols")
         .handle_errors()
         .with_tracing()
@@ -1546,15 +1857,16 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            column_name="ID",
+            column_name="subject_id",
             df=rename_patrol_cols,
-            **(params_dict.get("total_patrols") or {}),
+            **(params.get("total_patrols") or {}),
         )
         .call()
     )
 
     total_patrol_dist = (
-        dataframe_column_sum.validate()
+        task(dataframe_column_sum)
+        .validate()
         .set_task_instance_id("total_patrol_dist")
         .handle_errors()
         .with_tracing()
@@ -1568,13 +1880,14 @@ def main(params: Params):
         .partial(
             column_name="dist_meters",
             df=rename_patrol_cols,
-            **(params_dict.get("total_patrol_dist") or {}),
+            **(params.get("total_patrol_dist") or {}),
         )
         .call()
     )
 
     total_patrol_dist_converted = (
-        with_unit.validate()
+        task(with_unit)
+        .validate()
         .set_task_instance_id("total_patrol_dist_converted")
         .handle_errors()
         .with_tracing()
@@ -1589,13 +1902,14 @@ def main(params: Params):
             original_unit="m",
             new_unit="km",
             value=total_patrol_dist,
-            **(params_dict.get("total_patrol_dist_converted") or {}),
+            **(params.get("total_patrol_dist_converted") or {}),
         )
         .call()
     )
 
     patrol_effort_spatial = (
-        compute_patrol_effort_fraction.validate()
+        task(compute_patrol_effort_fraction)
+        .validate()
         .set_task_instance_id("patrol_effort_spatial")
         .handle_errors()
         .with_tracing()
@@ -1607,13 +1921,14 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            gdf=add_visit_bin_colors, **(params_dict.get("patrol_effort_spatial") or {})
+            gdf=add_visit_bin_colors, **(params.get("patrol_effort_spatial") or {})
         )
         .call()
     )
 
     total_patrols_sv_widget = (
-        create_single_value_widget_single_view.validate()
+        task(create_single_value_widget_single_view)
+        .validate()
         .set_task_instance_id("total_patrols_sv_widget")
         .handle_errors()
         .with_tracing()
@@ -1628,13 +1943,14 @@ def main(params: Params):
             title="Total Patrols",
             decimal_places=0,
             data=total_patrols,
-            **(params_dict.get("total_patrols_sv_widget") or {}),
+            **(params.get("total_patrols_sv_widget") or {}),
         )
         .call()
     )
 
     total_patrol_dist_sv_widget = (
-        create_single_value_widget_single_view.validate()
+        task(create_single_value_widget_single_view)
+        .validate()
         .set_task_instance_id("total_patrol_dist_sv_widget")
         .handle_errors()
         .with_tracing()
@@ -1649,13 +1965,14 @@ def main(params: Params):
             title="Total Patrol Distance",
             decimal_places=1,
             data=total_patrol_dist_converted,
-            **(params_dict.get("total_patrol_dist_sv_widget") or {}),
+            **(params.get("total_patrol_dist_sv_widget") or {}),
         )
         .call()
     )
 
     patrol_effort_quantity = (
-        to_quantity.validate()
+        task(to_quantity)
+        .validate()
         .set_task_instance_id("patrol_effort_quantity")
         .handle_errors()
         .with_tracing()
@@ -1669,13 +1986,14 @@ def main(params: Params):
         .partial(
             value=patrol_effort_spatial,
             unit="%",
-            **(params_dict.get("patrol_effort_quantity") or {}),
+            **(params.get("patrol_effort_quantity") or {}),
         )
         .call()
     )
 
     patrol_effort_sv_widget = (
-        create_single_value_widget_single_view.validate()
+        task(create_single_value_widget_single_view)
+        .validate()
         .set_task_instance_id("patrol_effort_sv_widget")
         .handle_errors()
         .with_tracing()
@@ -1690,13 +2008,14 @@ def main(params: Params):
             title="Patrol Coverage",
             decimal_places=1,
             data=patrol_effort_quantity,
-            **(params_dict.get("patrol_effort_sv_widget") or {}),
+            **(params.get("patrol_effort_sv_widget") or {}),
         )
         .call()
     )
 
     time_since_map_widget = (
-        create_map_widget_single_view.validate()
+        task(create_map_widget_single_view)
+        .validate()
         .set_task_instance_id("time_since_map_widget")
         .handle_errors()
         .with_tracing()
@@ -1710,13 +2029,14 @@ def main(params: Params):
         .partial(
             title="Days Since Patrol Visit",
             data=time_since_urls,
-            **(params_dict.get("time_since_map_widget") or {}),
+            **(params.get("time_since_map_widget") or {}),
         )
         .call()
     )
 
     dwell_map_widget = (
-        create_map_widget_single_view.validate()
+        task(create_map_widget_single_view)
+        .validate()
         .set_task_instance_id("dwell_map_widget")
         .handle_errors()
         .with_tracing()
@@ -1730,13 +2050,14 @@ def main(params: Params):
         .partial(
             title="Time Spent Per Grid Cell (Hours)",
             data=dwell_urls,
-            **(params_dict.get("dwell_map_widget") or {}),
+            **(params.get("dwell_map_widget") or {}),
         )
         .call()
     )
 
     ltd_map_widget = (
-        create_map_widget_single_view.validate()
+        task(create_map_widget_single_view)
+        .validate()
         .set_task_instance_id("ltd_map_widget")
         .handle_errors()
         .with_tracing()
@@ -1750,13 +2071,45 @@ def main(params: Params):
         .partial(
             title="Patrol Linear Time Density",
             data=ltd_urls,
-            **(params_dict.get("ltd_map_widget") or {}),
+            **(params.get("ltd_map_widget") or {}),
+        )
+        .call()
+    )
+
+    op_summary_table_display = (
+        task(map_columns)
+        .validate()
+        .set_task_instance_id("op_summary_table_display")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            raise_if_not_found=True,
+            df=op_summary_table,
+            duplicate_strategy="suffix",
+            drop_columns=[],
+            retain_columns=[],
+            rename_columns={
+                "subject_id": "Subject ID",
+                "patrol_subject": "Patrol Subject",
+                "distance_km": "Distance (km)",
+                "duration_hrs": "Duration (hrs)",
+                "patrol_days": "Patrol Days",
+            },
+            **(params.get("op_summary_table_display") or {}),
         )
         .call()
     )
 
     op_summary_table_html = (
-        draw_table.validate()
+        task(draw_table)
+        .validate()
         .set_task_instance_id("op_summary_table_html")
         .handle_errors()
         .with_tracing()
@@ -1768,7 +2121,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            dataframe=op_summary_table,
+            dataframe=op_summary_table_display,
             columns=None,
             table_config={
                 "enable_sorting": True,
@@ -1776,14 +2129,15 @@ def main(params: Params):
                 "enable_download": False,
                 "hide_header": False,
             },
-            widget_id="Operational Days Summary",
-            **(params_dict.get("op_summary_table_html") or {}),
+            widget_id="Patrol Summary",
+            **(params.get("op_summary_table_html") or {}),
         )
         .call()
     )
 
     op_summary_table_html_url = (
-        persist_text.validate()
+        task(persist_text)
+        .validate()
         .set_task_instance_id("op_summary_table_html_url")
         .handle_errors()
         .with_tracing()
@@ -1796,15 +2150,16 @@ def main(params: Params):
         )
         .partial(
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
-            filename_suffix="op_summary_table",
+            filename_suffix="patrol_summary_table",
             text=op_summary_table_html,
-            **(params_dict.get("op_summary_table_html_url") or {}),
+            **(params.get("op_summary_table_html_url") or {}),
         )
         .call()
     )
 
     op_summary_table_widget = (
-        create_table_widget_single_view.validate()
+        task(create_table_widget_single_view)
+        .validate()
         .set_task_instance_id("op_summary_table_widget")
         .handle_errors()
         .with_tracing()
@@ -1816,15 +2171,16 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(
-            title="Operational Days Summary",
+            title="Patrol Summary",
             data=op_summary_table_html_url,
-            **(params_dict.get("op_summary_table_widget") or {}),
+            **(params.get("op_summary_table_widget") or {}),
         )
         .call()
     )
 
     patrol_effort_dashboard = (
-        gather_dashboard.validate()
+        task(gather_dashboard)
+        .validate()
         .set_task_instance_id("patrol_effort_dashboard")
         .handle_errors()
         .with_tracing()
@@ -1848,7 +2204,7 @@ def main(params: Params):
             ],
             time_range=time_range,
             groupers=groupers,
-            **(params_dict.get("patrol_effort_dashboard") or {}),
+            **(params.get("patrol_effort_dashboard") or {}),
         )
         .call()
     )

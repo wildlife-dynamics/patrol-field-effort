@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Troubleshooting — Patrol Field Effort Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">Patrol Field Effort</a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="user-guide.html">User Guide</a>
+        <a href="technical-guide.html">Technical Guide</a>
+        <a href="troubleshooting.html" class="active">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/patrol-field-effort">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Troubleshooting</h1>
+    <p class="lede">Common issues encountered while configuring, running, or contributing to the Patrol Field Effort Workflow, and how to resolve them. If your issue isn't listed here, open an issue on <a href="https://github.com/wildlife-dynamics/patrol-field-effort/issues">GitHub</a>.</p>
+
+    <h2>Configuration &amp; EarthRanger Connection</h2>
+
+    <div class="error-block">
+      <p class="symptom">Workflow run fails instead of returning an empty dashboard</p>
+      <p><code>get_patrol_observations</code> is configured with <code>raise_on_empty: true</code> and restricted to <code>status: ["done"]</code>. If no completed patrols fall within the selected <a href="user-guide.html">time range</a> and area of interest, the run raises an error rather than producing a dashboard with empty maps. Widen the time range or double-check the area-of-interest selection first.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">No "grouper" option appears in the configuration form</p>
+      <p>This is expected &mdash; <a href="user-guide.html#groupers">groupers</a> are fixed to an empty list (<code>partial: groupers: []</code>) for this workflow. Every metric and the operational days table are always computed for the combined dataset; there is no per-patrol-type or per-ranger map/table variant.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Can't find the auto-scale vs. custom grid option</p>
+      <p>This workflow overrides the <code>create_geo_meshgrid</code> schema so only the <strong>custom cell size</strong> path is available &mdash; the auto/custom toggle is hidden by an RJSF <code>ui:widget: hidden</code> override and fixed to <code>"Customize"</code>. Only the <a href="user-guide.html#grid-cell-size">Grid Cell Size</a> field (metres, default 1000) is exposed.</p>
+    </div>
+
+    <h2>Maps &amp; Metrics</h2>
+
+    <div class="error-block">
+      <p class="symptom">A map is almost entirely grey ("Unvisited")</p>
+      <p>Grey (<code>#808080</code>) marks cells with no recorded value for that metric &mdash; no patrol trajectory intersected the cell (days-since-visit / dwell time) or no route coverage was computed there (linear time density). This is expected for a large study area with sparse patrol coverage, or a narrow time range. It does not indicate an error.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">All coloured cells show the same bin / colour</p>
+      <p>Each metric is classified into 5 <strong>natural-breaks (Jenks)</strong> bins. With very few visited cells or little variation in the underlying values, natural breaks can degenerate to fewer effective classes &mdash; this is a property of the classification scheme, not a workflow bug.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Linear Time Density map looks inconsistent with the other two maps for unvisited cells</p>
+      <p><code>calculate_linear_time_density</code> only returns cells that a patrol trajectory actually intersects. Grid cells with zero coverage are recovered separately via a <code>difference</code> overlay against the full clipped grid and concatenated back in, so every cell appears in the final map. If this reconciliation step is modified, unvisited cells can silently disappear from the linear time density map while still appearing on the other two.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Distance, area, or dwell-time figures look slightly off at high latitudes</p>
+      <p>All grid construction and the three field-effort metrics are computed in <strong>EPSG:3857</strong> (Web Mercator), which distorts area and distance increasingly with distance from the equator. For most East African study areas this is a minor effect, but it's worth keeping in mind when comparing patrol coverage percentages across sites at very different latitudes.</p>
+    </div>
+
+    <h2>Contributing &amp; CI</h2>
+    <p>These apply if you're modifying the workflow itself (<code>spec.yaml</code> or the generated workflow directory) and opening a pull request.</p>
+
+    <div class="error-block">
+      <p class="symptom"><code>Error: test-cases.yaml not found at test-cases.yaml</code></p>
+      <p>This repository currently does not have a <code>test-cases.yaml</code> file, but <code>.github/workflows/test.yml</code> requires one with at least one top-level test case before it will validate or test the workflow. Add a <code>test-cases.yaml</code> with at least one entry (<code>&lt;case-name&gt;: params: {...}</code>) before opening a PR &mdash; see a sibling workflow such as <code>mnc-patrol-effort/test-cases.yaml</code> for the expected format.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom"><code>Found wildcard version (*) in requirements</code> or <code>Found local file channel (file://) in requirements</code></p>
+      <p>Every dependency under <code>requirements</code> in <code>spec.yaml</code> must pin an exact version (or range) and use a remote conda channel &mdash; wildcard versions and local <code>file://</code> channels are only valid for local development, not for CI using published packages.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom"><code>VERSION.yaml (...) must be greater than main branch (...)</code></p>
+      <p>Bump <code>MAJ</code>/<code>MIN</code>/<code>PATCH</code> in the generated workflow directory's <code>VERSION.yaml</code> so it's strictly greater than the version on <code>main</code> before opening or updating a PR.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Generated workflow directory differs from <code>spec.yaml</code></p>
+      <p>Run the recompile script locally and commit the result:</p>
+      <pre><code>pixi run --manifest-path pixi.toml --locked bash -c "./dev/recompile.sh --update"</code></pre>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">No outputs written / can't find results</p>
+      <p>All outputs are written to the directory specified by the <code>ECOSCOPE_WORKFLOWS_RESULTS</code> environment variable. Confirm it's set and points to a directory the workflow process can write to.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Patrol Field Effort Workflow &middot; <a href="https://github.com/wildlife-dynamics/patrol-field-effort">wildlife-dynamics/patrol-field-effort</a> on GitHub</p>
+  </footer>
+</body>
+</html>

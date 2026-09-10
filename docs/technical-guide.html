@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Technical Guide — Patrol Field Effort Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">Patrol Field Effort</a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="user-guide.html">User Guide</a>
+        <a href="technical-guide.html" class="active">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/patrol-field-effort">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Technical Guide</h1>
+    <p class="lede">A deeper look at how the Patrol Field Effort Workflow is built: the EarthRanger ingestion pipeline, grid construction, field-effort metric methodology, classification/styling, and dashboard assembly.</p>
+
+    <p>
+      <a href="assets/patrol-field-effort_technical_guide.pdf">Download the full Technical Guide (PDF)</a>
+    </p>
+    <p>This guide was written directly from <code>spec.yaml</code>. Two behaviours worth calling out up front: <strong>groupers are fixed to an empty list</strong> (no per-group breakdown is possible in this workflow), and the patrol fetch uses <code>raise_on_empty: true</code>, so a time range or area of interest with no completed patrols fails the run rather than producing a partially-empty dashboard.</p>
+
+    <h2>Contents</h2>
+    <ol>
+      <li>Overview</li>
+      <li>Dependencies &amp; Prerequisites
+        <ol type="a">
+          <li>EarthRanger Connection</li>
+          <li>Groupers</li>
+          <li>Area of Interest</li>
+          <li>Analysis Grid &amp; Cell Size</li>
+          <li>Base Map Tile Layers</li>
+        </ol>
+      </li>
+      <li>Data Ingestion Pipeline
+        <ol type="a">
+          <li>Patrol Observations &rarr; Trajectories</li>
+          <li>Column Standardisation &amp; Patrol Date</li>
+          <li>Grid Overlay</li>
+        </ol>
+      </li>
+      <li>Field Effort Metrics &mdash; Methodology
+        <ol type="a">
+          <li>Days Since Last Visit</li>
+          <li>Dwell Time (Hours)</li>
+          <li>Linear Time Density</li>
+        </ol>
+      </li>
+      <li>Classification &amp; Styling</li>
+      <li>Map Outputs &mdash; Methodology</li>
+      <li>Summary Metrics
+        <ol type="a">
+          <li>Scalar Dashboard Widgets</li>
+          <li>Operational Days Table</li>
+        </ol>
+      </li>
+      <li>Interactive Dashboard</li>
+      <li>Output Files</li>
+      <li>Workflow Execution Logic
+        <ol type="a">
+          <li>Skip Conditions</li>
+          <li>Data Flow Summary</li>
+        </ol>
+      </li>
+      <li>Software Versions</li>
+    </ol>
+
+    <h2>Read it here</h2>
+    <p>The guide is embedded below. If it doesn't render in your browser, use the download link above.</p>
+    <embed src="assets/patrol_field_effort_technical_guide.pdf" type="application/pdf" width="100%" height="900px" style="border: 1px solid #d8e8d8; border-radius: 6px;" />
+  </main>
+
+  <footer class="site-footer">
+    <p>Patrol Field Effort Workflow &middot; <a href="https://github.com/wildlife-dynamics/patrol-field-effort">wildlife-dynamics/patrol-field-effort</a> on GitHub</p>
+  </footer>
+</body>
+</html>
