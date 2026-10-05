@@ -1,21 +1,10 @@
-name:  # Title Case, e.g. "My Ecoscope Workflow Template"
-
-# at least one author is required
+name: Patrol Field Effort
 author:
-  - name: ""
-    organization: ""
-    email: ""
+  - name: Tevin Temu
+    organization: Wildlife Dynamics
+    email: tevin@wildlifedynamics.com
 
-description: # A short description
-
-# todo: add example
-theory: "" # optional
-
-# todo: add example
-output_comment: "" # optional
-
-# optional
-# example
-# citation: 
-#   - Wu, Y. et al. (2025). "Monitoring elephant spatial patterns with Ecoscope workflows."
-citation: [] 
+description: Analyses completed EarthRanger ranger patrols within a study area and produces a dashboard of field effort, mapping days since last patrol visit, dwell time, and linear time density on a grid, with patrol, distance, and coverage statistics and a per-ranger operational days table.
+theory: "Completed patrol observations are converted to trajectories and spatially joined to a grid (1 km cells by default) clipped to the study area in EPSG:3857. Three metrics are calculated per cell: days since the last patrol visit relative to the end of the time range, total dwell time in hours, and linear time density expressed as a percentile of route coverage. Each metric is classified into 5 natural-breaks classes, with unvisited cells shown separately. Patrol coverage is the percentage of the study area with at least one recorded visit, and operational days are the distinct patrol days per ranger alongside distance and duration."
+output_comment: "Outputs a dashboard with stat cards for total patrols, total distance, and patrol coverage, interactive maps of days since last patrol visit, dwell time, and linear time density over the study area boundary, and a per-ranger operational days table. Also writes the three metric grids, the study area boundary, patrol observations, and patrol trajectories (GeoPackage), the maps as HTML, and the operational days table (CSV)."
+citation: []
