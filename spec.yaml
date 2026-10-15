@@ -26,6 +26,12 @@ requirements:
 
 rjsf-overrides:
   properties:
+    # Patrol types: a drop-down of the chosen EarthRanger site's patrol types
+    get_patrol_obs.properties.patrol_types.ecoscope:transform:
+      - transformer: EarthRangerEnumResolver
+        transformer_kws:
+          type: patrol_type
+          depends_on: properties.er_client_name.properties.data_source.properties.name
     create_geo_meshgrid.properties.auto_scale_or_custom_cell_size.anyOf:
       - $ref: "#/$defs/CustomGridCellSize"
     create_geo_meshgrid.properties.auto_scale_or_custom_cell_size.default:

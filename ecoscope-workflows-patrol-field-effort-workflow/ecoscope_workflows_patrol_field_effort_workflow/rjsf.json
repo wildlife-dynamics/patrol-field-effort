@@ -327,7 +327,16 @@
           },
           "title": "Patrol Types",
           "type": "array",
-          "description": "Specify the patrol type(s) to analyze (optional). Leave empty to analyze all patrol types."
+          "description": "Specify the patrol type(s) to analyze (optional). Leave empty to analyze all patrol types.",
+          "ecoscope:transform": [
+            {
+              "transformer": "EarthRangerEnumResolver",
+              "transformer_kws": {
+                "type": "patrol_type",
+                "depends_on": "properties.er_client_name.properties.data_source.properties.name"
+              }
+            }
+          ]
         }
       },
       "required": [
